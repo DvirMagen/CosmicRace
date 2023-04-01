@@ -4,11 +4,9 @@ import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
-import { useLocation } from "react-router-dom";
+import { Download } from "react-bootstrap-icons";
 
 function NavbarComponent() {
-  const location = useLocation();
-
   return (
     <>
       {JWTManager.isTokenValid() ? (
@@ -24,45 +22,40 @@ function NavbarComponent() {
               <Navbar.Toggle aria-controls="responsive-navbar-nav" />
               <Navbar.Collapse id="responsive-navbar-nav">
                 <Nav className="me-auto">
-                  <Nav.Link href="/dashboard#Home">Home</Nav.Link>
-                  <Nav.Link href="#store">Store</Nav.Link>
+                  <Nav.Link href="/dashboard">Home</Nav.Link>
+                  <Nav.Link href="/store">Store</Nav.Link>
                   <NavDropdown title="Settings" id="collasible-nav-dropdown">
-                    <NavDropdown.Item href="#action/3.1">
-                      Profile
-                    </NavDropdown.Item>
-                    <NavDropdown.Item href="#action/3.2">
+                    <NavDropdown.Item href="/change-password">
                       Change Password
                     </NavDropdown.Item>
                   </NavDropdown>
+                  <Nav.Link href="/room">Play</Nav.Link>
                 </Nav>
                 <Nav>
                   <Navbar.Text>
-                    Signed in as:{" "}
-                    <a href="#login">{JWTManager.getUsername()}</a> |
+                    <a href="#download">
+                      <button
+                        type="button"
+                        style={{
+                          backgroundColor: "#161819",
+                          border: "0",
+                          color: "#FFF",
+                          padding: "5px 10px",
+                          marginRight: "5px",
+                          borderRadius: "7px",
+                        }}>
+                        <Download style={{ marginRight: "5px" }} /> Download
+                      </button>
+                    </a>{" "}
+                    |{" "}
                   </Navbar.Text>
-                  <Nav.Link href="/logout">Logout</Nav.Link>
+                  <Nav.Link href="/logout" style={{ margin: "5px 0 5px 0" }}>
+                    Logout
+                  </Nav.Link>
                 </Nav>
               </Navbar.Collapse>
             </Container>
           </Navbar>
-          {location.pathname !== "/room" && (
-            <div
-              className="buttonGroup"
-              style={{
-                position: "absolute",
-                zIndex: 99,
-                bottom: 0,
-                right: 20,
-                margin: 20,
-              }}>
-              <LinkNavigation
-                name="playBtn"
-                link="/room"
-                style={{ margin: -10, cursor: "pointer" }}
-                text="Play FriendMode"
-              />
-            </div>
-          )}
         </>
       ) : (
         <div className="Navbar buttonGroup d-flex d-flex flex-row-reverse">

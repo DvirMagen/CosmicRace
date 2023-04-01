@@ -18,25 +18,30 @@ const RegisterPage = () => {
     if (username.length < 5) {
       alert("Username length must be at least 5 characters.");
     } else if (password.length < 6) {
-      alert("Password length must be at least 5 characters.");
+      alert("Password length must be at least 6 characters.");
     } else if (password !== repassword) {
       alert("Please make sure the passwords are equal.");
     } else {
-      await fetch(process.env.REACT_APP_SERVER_HOST + "/registration", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: username,
-          password: password,
-          email: email,
-        }),
-      })
-        .then((response) => response.text())
-        .then((data) => alert(data))
-        .catch((err) => alert(err));
+      const response = await fetch(
+        process.env.REACT_APP_SERVER_HOST + "/registration",
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: username,
+            password: password,
+            email: email,
+          }),
+        }
+      ).catch((err) => alert(err));
+
+      const data = await response.json();
+
+      alert(data.message);
+      if (data.success) navigate("/login");
     }
   }
 
