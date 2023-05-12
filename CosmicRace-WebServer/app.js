@@ -60,7 +60,7 @@ app.post("/registration", (req, res) => {
           connection.release();
           return res.status(500).send({
             success: false,
-            message: err,
+            message: err.message,
           });
         }
 
@@ -72,19 +72,19 @@ app.post("/registration", (req, res) => {
           });
 
         connection.query(
-          "INSERT INTO GameUsers (`username`,`password`,`email`,`coinsAmount`, `loses`, `wins`) VALUES (?,?,?,?,?,?)",
-          [req.body.username, req.body.password, req.body.email, 1000, 0, 0],
+          "INSERT INTO GameUsers (`username`,`password`,`email`,`level`,`coinsAmount`, `loses`, `wins`) VALUES (?,?,?,?,?,?,?)",
+          [req.body.username, req.body.password, req.body.email, 1, 1000, 0, 0],
           (err, userInsertResult) => {
             if (err) {
               connection.release();
               return res.status(500).send({
                 success: false,
-                message: err,
+                message: err.message,
               });
             }
 
             const characterQuery =
-              "INSERT INTO userscharactersdata (userID, characterID, stats, visualData) SELECT User.id, gc.id, gc.defaultStats, gc.defaultVisualData FROM gamecharacters gc, GameUsers User WHERE User.username = '" +
+              "INSERT INTO userscharactersdata (userID, characterID, level, xp, magicPoints, speed, jump, power, defense) SELECT User.id, gc.id, gc.level, gc.xp, gc.magicPoints, gc.speed, gc.jump, gc.power, gc.defense FROM gamecharacters gc, GameUsers User WHERE User.username = '" +
               req.body.username +
               "'";
             connection.query(characterQuery, [], (err, userCharacterInsert) => {
@@ -93,7 +93,7 @@ app.post("/registration", (req, res) => {
               if (err)
                 return res.status(500).send({
                   success: false,
-                  message: err,
+                  message: err.message,
                 });
 
               return res.status(200).send({
@@ -132,7 +132,8 @@ app.post("/login", (req, res) => {
       });
     }
 
-    let auth = "SELECT * FROM GameUsers WHERE username = ? AND password = ?";
+    let auth =
+      "SELECT GU.id, GU.username, GU.level, GU.coinsAmount, UCD.characterID, GC.CharacterName, UCD.level, UCD.xp, UCD.magicPoints, UCD.speed, UCD.jump, UCD.power, UCD.defense, UCD.winCount, UCD.loseCount FROM GameUsers GU JOIN userscharactersdata UCD ON (UCD.userid = GU.id) Join GameCharacters GC ON (GC.id = UCD.characterID) WHERE GU.username = ? AND GU.password = ?";
 
     connection.query(auth, [username, password], (err, result) => {
       // Release coonection back to the pool.
@@ -141,7 +142,7 @@ app.post("/login", (req, res) => {
       if (err) {
         console.log(err);
         return res.status(500).send({
-          message: err,
+          message: err.message,
         });
       }
 
@@ -165,7 +166,65 @@ app.post("/login", (req, res) => {
       res.status(200).send({
         message: "Sign in succesfull",
         success: true,
+        userid: result[0].id,
+        username: username,
         token: token,
+        level: result[0].level,
+        coins: result[0].coinsAmount,
+        characters: [
+          {
+            characterID: result[0].characterID,
+            characterName: result[0].CharacterName,
+            level: result[0].level,
+            xp: result[0].xp,
+            magicPoints: result[0].magicPoints,
+            speed: result[0].speed,
+            power: result[0].power,
+            defense: result[0].defense,
+            jump: result[0].jump,
+            wins: result[0].winCount,
+            loses: result[0].loseCount,
+          },
+          {
+            characterID: result[1].characterID,
+            characterName: result[1].CharacterName,
+            level: result[1].level,
+            xp: result[1].xp,
+            magicPoints: result[1].magicPoints,
+            speed: result[1].speed,
+            power: result[1].power,
+            defense: result[1].defense,
+            jump: result[0].jump,
+            wins: result[1].winCount,
+            loses: result[1].loseCount,
+          },
+          {
+            characterID: result[2].characterID,
+            characterName: result[2].CharacterName,
+            level: result[2].level,
+            xp: result[2].xp,
+            magicPoints: result[2].magicPoints,
+            speed: result[2].speed,
+            power: result[2].power,
+            defense: result[2].defense,
+            jump: result[0].jump,
+            wins: result[2].winCount,
+            loses: result[2].loseCount,
+          },
+          {
+            characterID: result[3].characterID,
+            characterName: result[3].CharacterName,
+            level: result[3].level,
+            xp: result[3].xp,
+            magicPoints: result[3].magicPoints,
+            speed: result[3].speed,
+            power: result[3].power,
+            defense: result[3].defense,
+            jump: result[0].jump,
+            wins: result[3].winCount,
+            loses: result[3].loseCount,
+          },
+        ],
       });
 
       return;
@@ -262,5 +321,55 @@ app.post("/change-password", authorization, (req, res) => {
         });
       }
     );
+  });
+});
+
+// Post request -> receives from game server username & character id.
+// return: Character Data.
+// TODO - Add authorization by IP or JWT.
+app.post("/fetchcharacterdata", (req, res) => {
+  // Params from json in request body.
+  const userid = req.body.userid;
+  const characterId = req.body.characterId;
+
+  if (
+    userid === "" ||
+    characterId === "" ||
+    userid === undefined ||
+    characterId === undefined
+  ) {
+    return res.status(400).send({
+      message: "Missing information.",
+    });
+  }
+
+  // Fetch data from database about player.
+  req.db.getConnection((err, connection) => {
+    if (err) return res.status(500).send(err);
+
+    let fetchQuery =
+      "SELECT GU.id, GU.username, UCD.characterID, GC.CharacterName, UCD.level, UCD.xp, UCD.magicPoints, UCD.speed, UCD.jump, UCD.power, UCD.defense, UCD.winCount, UCD.loseCount FROM GameUsers GU JOIN userscharactersdata UCD ON (UCD.userid = GU.id) Join GameCharacters GC ON (GC.id = UCD.characterID) WHERE GU.id = ? AND UCD.characterID = ?";
+
+    connection.query(fetchQuery, [userid, characterId], (err, result) => {
+      connection.release();
+      if (err) return res.status(500).send(err);
+
+      res.status(200).send({
+        message: "OK",
+        success: true,
+        username: result[0].username,
+        characterID: result[0].characterID,
+        characterName: result[0].CharacterName,
+        level: result[0].level,
+        xp: result[0].xp,
+        magicPoints: result[0].magicPoints,
+        speed: result[0].speed,
+        power: result[0].power,
+        defense: result[0].defense,
+        jump: result[0].jump,
+        wins: result[0].winCount,
+        loses: result[0].loseCount,
+      });
+    });
   });
 });
