@@ -1,3 +1,11 @@
 [submodule "GameServer"]
 	path = GameServer
 	url = https://github.com/amitswisa/CosmicRace-GameServer.git
+
+[submodule "CosmicRace-WebServer"]
+	path = CosmicRace-WebServer
+	url = git://github.com/amitswisa/CosmicRaceServer.git
+
+[submodule "CosmicRace-Website"]
+	path = CosmicRace-Web
+	url = git://github.com/amitswisa/CosmicRaceWeb.git
