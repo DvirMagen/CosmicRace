@@ -4,3 +4,6 @@
 [submodule "CosmicRaceWebServer"]
 	path = CosmicRaceWebServer
 	url = https://github.com/amitswisa/CosmicRaceServer.git
+[submodule "CosmicRaceWeb"]
+	path = CosmicRaceWeb
+	url = https://github.com/amitswisa/CosmicRaceWeb.git
