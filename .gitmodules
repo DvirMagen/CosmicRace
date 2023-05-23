@@ -7,3 +7,6 @@
 [submodule "CosmicRaceWeb"]
 	path = CosmicRaceWeb
 	url = https://github.com/amitswisa/CosmicRaceWeb.git
+[submodule "CosmicRace-Unity"]
+	path = UnityGame-CosmicRace
+	url = https://github.com/amitswisa/CosmicRace-Unity
