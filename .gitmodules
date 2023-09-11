@@ -7,3 +7,7 @@
 [submodule "CosmicRaceWeb"]
 	path = CosmicRaceWeb
 	url = https://github.com/amitswisa/CosmicRaceWeb.git
+[submodule "CosmicRace-Game"]
+	path = CosmicRace-Game
+	url = C:/Users/Amit/Desktop/UnityPorject/CosmicRace-Unity
+	branch = EndBranch
